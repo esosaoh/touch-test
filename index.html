@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Touch Test Website</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+      transition: background-color 0.5s ease;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      margin: 20px;
+      cursor: pointer;
+    }
+    button:active {
+      transform: scale(0.95);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Touch Test Website</h1>
+  <button id="colorBtn">Change Background Color</button>
+  <button id="alertBtn">Show Alert</button>
+
+  <script>
+    // Colors to cycle through
+    const colors = ['#ff9999', '#99ff99', '#9999ff'];
+    let currentColorIndex = 0;
+
+    // Button to change background color
+    const colorButton = document.getElementById('colorBtn');
+    colorButton.addEventListener('click', () => {
+      document.body.style.backgroundColor = colors[currentColorIndex];
+      currentColorIndex = (currentColorIndex + 1) % colors.length;
+    });
+
+    // Button to show an alert
+    const alertButton = document.getElementById('alertBtn');
+    alertButton.addEventListener('click', () => {
+      alert('Button clicked!');
+    });
+  </script>
+
+</body>
+</html>
+

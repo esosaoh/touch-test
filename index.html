@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Touch Test Website</title>
+  <title>Touch Test Website with TUIO</title>
+  <script src="https://www.tuio.org/webdemojs/tuio.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -20,11 +21,19 @@
     button:active {
       transform: scale(0.95);
     }
+    .touch-point {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: rgba(255, 0, 0, 0.5);
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
 
-  <h1>Touch Test Website</h1>
+  <h1>Touch Test Website with TUIO</h1>
   <button id="colorBtn">Change Background Color</button>
   <button id="alertBtn">Show Alert</button>
 
@@ -45,8 +54,62 @@
     alertButton.addEventListener('click', () => {
       alert('Button clicked!');
     });
+
+    // TUIO integration
+    document.addEventListener('DOMContentLoaded', function() {
+      var client = new TUIO.Client({
+        host: "localhost", // Change this to the IP of your TUIO server if it's not on the same machine
+        port: 3333 // Change this if your TUIO server uses a different port
+      });
+
+      function mapToScreenCoordinates(x, y) {
+        return {
+          x: x * window.innerWidth,
+          y: y * window.innerHeight
+        };
+      }
+
+      function createTouchPoint(x, y) {
+        const touchPoint = document.createElement('div');
+        touchPoint.className = 'touch-point';
+        touchPoint.style.left = `${x}px`;
+        touchPoint.style.top = `${y}px`;
+        document.body.appendChild(touchPoint);
+        return touchPoint;
+      }
+
+      client.on("addTuioCursor", function(cursor) {
+        console.log("Touch started at x:" + cursor.x + ", y:" + cursor.y);
+        const coords = mapToScreenCoordinates(cursor.x, cursor.y);
+        cursor.touchPoint = createTouchPoint(coords.x, coords.y);
+        
+        // Check if touch is on a button and trigger click
+        const elementAtPoint = document.elementFromPoint(coords.x, coords.y);
+        if (elementAtPoint && elementAtPoint.tagName === 'BUTTON') {
+          elementAtPoint.click();
+        }
+      });
+
+      client.on("updateTuioCursor", function(cursor) {
+        console.log("Touch moved to x:" + cursor.x + ", y:" + cursor.y);
+        if (cursor.touchPoint) {
+          const coords = mapToScreenCoordinates(cursor.x, cursor.y);
+          cursor.touchPoint.style.left = `${coords.x}px`;
+          cursor.touchPoint.style.top = `${coords.y}px`;
+        }
+      });
+
+      client.on("removeTuioCursor", function(cursor) {
+        console.log("Touch ended at x:" + cursor.x + ", y:" + cursor.y);
+        if (cursor.touchPoint) {
+          document.body.removeChild(cursor.touchPoint);
+        }
+      });
+
+      client.connect();
+      console.log("TUIO client connected");
+    });
   </script>
 
 </body>
 </html>
-
